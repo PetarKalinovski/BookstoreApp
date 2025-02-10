@@ -1,4 +1,5 @@
-﻿using Domain.Identity_Models;
+﻿using Domain.Domain_Models;
+using Domain.Identity_Models;
 using Eshop.Domain.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -33,9 +34,12 @@ namespace Web.Controllers
             
             return View(orders);
         }
-
+        public IActionResult ListAll()
+        {
+            var orders = _orderService.GetAllOrders();
+            return View(orders);
+        }
         // GET: Orders/Details/5
-        [Authorize]
         public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null) return NotFound();
@@ -44,12 +48,17 @@ namespace Web.Controllers
             if (user == null) return Challenge();
 
             var order = _orderService.GetOrderDetails(id.Value);
-            if (order == null || order.UserId != user.Id)
+            if (order == null)
             {
                 return NotFound();
             }
 
-            foreach(var item in order.BookInOrders)
+            if (order.UserId != user.Id && !User.IsInRole("Admin"))
+            {
+                return NotFound();
+            }
+
+            foreach (var item in order.BookInOrders)
             {
                 Book b = _bookService.GetDetailsForBook(item.BookId);
                 item.Book = b;
@@ -58,6 +67,22 @@ namespace Web.Controllers
             return View(order);
         }
 
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public  IActionResult UpdateStatus(Guid id, OrderStatus newStatus)
+        {
+            var order = _orderService.GetOrderDetails(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            _orderService.UpdateOrderStatus(id, newStatus);
+
+            TempData["Success"] = "Order status updated successfully.";
+            return RedirectToAction(nameof(Details), new { id = id });
+        }
 
         [Authorize]
         public async Task<IActionResult> Delete(Guid? id)

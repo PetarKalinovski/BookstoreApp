@@ -14,5 +14,7 @@ namespace Project.Service.Interface
         Order GetOrderDetails(Guid orderId);
         void UpdateOrderStatus(Guid orderId, OrderStatus status);
         void DeleteOrder(Guid orderId);
+
+        List<Order> GetAllOrders();
     }
 }

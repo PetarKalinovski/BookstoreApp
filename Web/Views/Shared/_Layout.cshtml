@@ -43,6 +43,11 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Orders" asp-action="Index">Check your order status</a>
                         </li>
+                        @if (User.Identity.IsAuthenticated &&  User.IsInRole("Admin")){
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Orders" asp-action="ListAll">All orders-Admin</a>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>

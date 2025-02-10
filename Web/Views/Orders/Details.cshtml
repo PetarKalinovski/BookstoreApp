@@ -4,7 +4,6 @@
 @model Order
 
 <h2>Order Details</h2>
-
 <div class="card mb-4">
     <div class="card-header">
         <div class="row">
@@ -12,9 +11,32 @@
                 <h5 class="mb-0">Order #@Model.Id.ToString().Substring(0, 8)</h5>
             </div>
             <div class="col-md-6 text-md-end">
-                <span class="badge bg-@GetStatusBadgeColor(Model.Status)">
-                    @Model.Status
-                </span>
+                @if (User.IsInRole("Admin"))
+                {
+                    <form asp-action="UpdateStatus" method="post" class="d-inline-flex align-items-center gap-2">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <select name="newStatus" class="form-select form-select-sm status-select bg-@GetStatusBadgeColor(Model.Status)">
+                            @foreach (OrderStatus status in Enum.GetValues(typeof(OrderStatus)))
+                            {
+                                if (Model.Status == status)
+                                {
+                                    <option value="@status" selected>@status</option>
+                                }
+                                else
+                                {
+                                    <option value="@status">@status</option>
+                                }
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                    </form>
+                }
+                else
+                {
+                    <span class="badge bg-@GetStatusBadgeColor(Model.Status)">
+                        @Model.Status
+                    </span>
+                }
             </div>
         </div>
     </div>
@@ -47,19 +69,19 @@
                     {
                         <tr>
                             <td>
-                                @* <div class="d-flex align-items-center"> *@
-                                @*     @if (!string.IsNullOrEmpty(item.Book?.PictureUrl)) *@
-                                @*     { *@
-                                @*         <img src="@item.Book.PictureUrl" alt="@item.Book.Title" *@
-                                @*              class="me-2" style="width: 50px; height: 50px; object-fit: cover;" /> *@
-                                @*     } *@
-                                @*     <div> *@
-                                @*         <a asp-controller="Books" asp-action="Details" *@
-                                @*            asp-route-id="@item.BookId"> *@
-                                @*             @item.Book?.Title *@
-                                @*         </a> *@
-                                @*     </div> *@
-                                @* </div> *@
+                                 <div class="d-flex align-items-center">
+                                     @if (!string.IsNullOrEmpty(item.Book?.PictureUrl))
+                                     {
+                                         <img src="@item.Book.PictureUrl" alt="@item.Book.Title" 
+                                              class="me-2" style="width: 50px; height: 50px; object-fit: cover;" /> 
+                                     } 
+                                     <div> 
+                                         <a asp-controller="Books" asp-action="Details" 
+                                            asp-route-id="@item.BookId"> 
+                                             @item.Book?.Title 
+                                         </a> 
+                                     </div> 
+                                 </div>
                                 @item.Book?.ISBN
                             </td>
                             <td>@item.Book?.Title</td>
@@ -74,9 +96,44 @@
     </div>
 </div>
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <div>
     <a asp-action="Index" class="btn btn-secondary">Back to Orders</a>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusSelect = document.querySelector('select[name="newStatus"]');
+            if (statusSelect) {
+                statusSelect.addEventListener('change', function() {
+                    const statusColors = {
+                        'Pending': 'warning',
+                        'Processing': 'info',
+                        'Shipped': 'primary',
+                        'Delivered': 'success',
+                        'Cancelled': 'danger'
+                    };
+
+                    this.classList.remove('bg-warning', 'bg-info', 'bg-primary', 'bg-success', 'bg-danger');
+                    this.classList.add(`bg-${statusColors[this.value]}`);
+                    this.form.submit();
+                });
+            }
+        });
+    </script>
+}
 
 @functions {
     private string GetStatusBadgeColor(OrderStatus status)

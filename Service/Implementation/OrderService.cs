@@ -50,5 +50,10 @@ namespace EShop.Service.Implementation
                 _orderRepository.Delete(order);
             }
         }
+
+        public List<Order> GetAllOrders()
+        {
+            return _orderRepository.GetAll().ToList();
+        }
     }
 }

@@ -8,7 +8,7 @@
 @* Views/Orders/Index.cshtml *@
 @model IEnumerable<Order>
 
-<h2>My Orders</h2>
+<h2>All Orders</h2>
 
 @if (!Model.Any())
 {
@@ -50,13 +50,13 @@ else
                                 View Details
                             </a>
                             @if (User.Identity.IsAuthenticated && User.IsInRole("Admin")){
-                            <a asp-action="Delete" asp-route-id="@order.Id"
-                               class="btn btn-outline-danger btn-sm">
-                                Delete
-                            </a>
-                            }
-                        </td>
-                    </tr>
+                    <a asp-action="Delete" asp-route-id="@order.Id"
+                       class="btn btn-outline-danger btn-sm">
+                        Delete
+                    </a>
+                    }
+                </td>
+            </tr>
                 }
             </tbody>
         </table>

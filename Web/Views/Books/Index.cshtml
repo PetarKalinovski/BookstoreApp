@@ -1,4 +1,7 @@
-﻿@model IEnumerable<Eshop.Domain.Domain.Book>
+﻿@using Domain.Identity_Models
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IntegratedSystemsUser> UserManager
+@model IEnumerable<Eshop.Domain.Domain.Book>
 @{
     ViewData["Title"] = "Our Books";
 }
@@ -51,6 +54,7 @@
                         @* <button class="btn btn-sm btn-outline-primary add-to-cart"> *@
                         @*     <i class="fas fa-shopping-cart"></i> *@
                         @* </button> *@
+                        @if (User.Identity.IsAuthenticated && (item.UserId == UserManager.GetUserId(User) || User.IsInRole("Admin"))){}
                         <div class="admin-buttons">
                             <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">
                                 <i class="fas fa-edit"></i>
@@ -59,6 +63,7 @@
                                 <i class="fas fa-trash"></i>
                             </a>
                         </div>
+                        }
                     </div>
                 </div>
             </div>
