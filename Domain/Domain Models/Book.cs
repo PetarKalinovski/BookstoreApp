@@ -19,5 +19,8 @@ namespace Eshop.Domain.Domain
 
         [NotMapped]
         public ICollection<Guid>? AuthorIds { get; set; }
+
+
+        public string? UserId { get; set; }
     }
 }

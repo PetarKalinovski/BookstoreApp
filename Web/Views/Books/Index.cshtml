@@ -1,65 +1,67 @@
 ﻿@model IEnumerable<Eshop.Domain.Domain.Book>
-
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Our Books";
 }
 
-<h1>Index</h1>
+<div class="header-actions">
+    <div class="search-bar">
+        <form asp-action="Index" method="get" class="search-form">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text"
+                   name="searchString"
+                   placeholder="Search books..."
+                   class="search-input"
+                   value="@Context.Request.Query["searchString"]">
+        </form>
+    </div>
+    <a asp-action="Create" class="btn btn-primary create-btn">
+        <i class="fas fa-plus"></i> Add New Book
+    </a>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ISBN)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Date)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PictureUrl)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ISBN)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Date)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PictureUrl)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="books-container">
+    @foreach (var item in Model)
+    {
+        <div class="book-card">
+            <div class="book-image">
+                @if (!string.IsNullOrEmpty(item.PictureUrl))
+                {
+                    <img src="@item.PictureUrl" alt="@item.Title" />
+                }
+                else
+                {
+                    <img src="/images/default-book.jpg" alt="Default book cover" />
+                }
+                <div class="book-overlay">
+                    <a asp-action="Details" asp-route-id="@item.Id" class="overlay-btn">
+                        View Details
+                    </a>
+                </div>
+            </div>
+            <div class="book-info">
+                <h3 class="book-title">@item.Title</h3>
+                <div class="book-meta">
+                    <span class="book-isbn"><i class="fas fa-barcode"></i> @item.ISBN</span>
+                    <span class="book-date"><i class="far fa-calendar-alt"></i> @(item.Date?.ToString("MMM yyyy") ?? "N/A")</span>
+                </div>
+                <p class="book-description">@(item.Description?.Length > 100 ? item.Description.Substring(0, 97) + "..." : item.Description)</p>
+                <div class="book-price-actions">
+                    <span class="book-price">$@(item.Price?.ToString("F2") ?? "0.00")</span>
+                    <div class="quick-actions">
+                        @* <button class="btn btn-sm btn-outline-primary add-to-cart"> *@
+                        @*     <i class="fas fa-shopping-cart"></i> *@
+                        @* </button> *@
+                        <div class="admin-buttons">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -1,30 +1,78 @@
-﻿@model Eshop.Domain.Domain.Author
+﻿@using Domain.Identity_Models
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IntegratedSystemsUser> UserManager
+@model Eshop.Domain.Domain.Author
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = Model.Name;
 }
 
-<h1>Details</h1>
+<div class="author-details-container">
+    <div class="author-details-header">
+        <a asp-action="Index" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Authors
+        </a>
+    </div>
 
-<div>
-    <h4>Author</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Biography)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Biography)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <div class="author-profile">
+        <div class="author-info">
+            <h1 class="author-name">@Model.Name</h1>
+
+            @if (!string.IsNullOrEmpty(Model.Biography))
+            {
+                <div class="author-biography">
+                    <h2>Biography</h2>
+                    <p>@Model.Biography</p>
+                </div>
+            }
+        </div>
+        @if (User.Identity.IsAuthenticated && (Model.UserId == UserManager.GetUserId(User) || User.IsInRole("Admin"))){
+            <div class="admin-actions">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Edit Author
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Delete Author
+                </a>
+            </div>
+            }
+
+    </div>
+
+    <div class="author-books">
+        <h2>Published Books</h2>
+
+        @if (Model.Books != null && Model.Books.Any())
+        {
+            <div class="books-grid">
+                @foreach (var book in Model.Books)
+                {
+                    <div class="author-book-card">
+                        <div class="book-image">
+                            <img src="@book.PictureUrl" alt="@book.Title" />
+                        </div>
+                        <div class="book-info">
+                            <h3 class="book-title">
+                                <a asp-controller="Books" asp-action="Details" asp-route-id="@book.Id">
+                                    @book.Title
+                                </a>
+                            </h3>
+                            <p class="book-isbn">ISBN: @book.ISBN</p>
+                            <p class="book-price">$@(book.Price?.ToString("F2") ?? "0.00")</p>
+                            <p class="book-date">
+                                <i class="fas fa-calendar-alt"></i>
+                                @(book.Date?.ToString("MMM yyyy") ?? "N/A")
+                            </p>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="no-books">
+                <p>No books published yet.</p>
+            </div>
+        }
+    </div>
 </div>

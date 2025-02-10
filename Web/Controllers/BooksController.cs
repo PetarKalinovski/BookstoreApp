@@ -34,9 +34,15 @@ namespace Web.Controllers
             _shoppingCartService = shoppingCartService;
         }
         // GET: Books
-        public IActionResult Index()
+        public IActionResult Index(string searchString)
         {
-            return View(_bookService.GetAllBooks());
+            var books=_bookService.GetAllBooks();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                books = _bookService.GetBooksByName(searchString);
+            }
+
+            return View(books);
         }
 
         // GET: Books/Details/5
@@ -84,7 +90,7 @@ namespace Web.Controllers
                 TempData["Error"] = "There was an error adding the item to your cart.";
             }
 
-            return RedirectToAction(nameof(Details));
+            return RedirectToAction(nameof(Details), book.Id);
         }
         // GET: Books/Create
         public IActionResult Create()
@@ -99,16 +105,26 @@ namespace Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("ISBN,Title,Description,Date,Price,PictureUrl,Id, AuthorIds, PublisherId")] Book book)
+        [Authorize] 
+        public async Task<IActionResult> Create([Bind("ISBN,Title,Description,Date,Price,PictureUrl,Id,AuthorIds,PublisherId")] Book book)
         {
             if (ModelState.IsValid)
             {
-                var selectedAuthors = _authorService.GetAuthorList().Where(a=>book.AuthorIds.Contains(a.Id));
+
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return Challenge();
+                }
+
+                book.UserId = user.Id;
+
+                var selectedAuthors = _authorService.GetAuthorList().Where(a => book.AuthorIds.Contains(a.Id));
                 var publisher = _publisherService.GetDetailsForPublisher(book.PublisherId);
                 if (selectedAuthors.Any())
                 {
                     book.Authors = selectedAuthors.ToList();
-                    foreach(Author a in selectedAuthors)
+                    foreach (Author a in selectedAuthors)
                     {
                         if (a.Books == null)
                         {
@@ -120,19 +136,17 @@ namespace Web.Controllers
                 if (publisher != null)
                 {
                     book.Publisher = publisher;
-
                     if (publisher.Books == null)
-                     {
+                    {
                         publisher.Books = new List<Book>();
-                     }
+                    }
                     publisher.Books.Add(book);
                 }
                 _bookService.CreateNewBook(book);
                 return RedirectToAction(nameof(Index));
             }
-
             ViewBag.Authors = new SelectList(_authorService.GetAuthorList(), "Id", "Name");
-            ViewBag.Publishers= new SelectList(_publisherService.GetAllPublishers(), "Id", "Name");
+            ViewBag.Publishers = new SelectList(_publisherService.GetAllPublishers(), "Id", "Name");
             return View(book);
         }
 
@@ -160,7 +174,8 @@ namespace Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Guid id, [Bind("ISBN,Title,Description,Date,Price,PictureUrl,Id, AuthorIds, PublisherId")] Book book)
+        [Authorize]
+        public async Task<IActionResult> Edit(Guid id, [Bind("ISBN,Title,Description,Date,Price,PictureUrl,Id, AuthorIds, PublisherId")] Book book)
         {
             if (id != book.Id)
             {
@@ -171,6 +186,14 @@ namespace Web.Controllers
             {
                 try
                 {
+                    var user = await _userManager.GetUserAsync(User);
+                    if (user == null)
+                    {
+                        return Challenge();
+                    }
+
+                    book.UserId = user.Id;
+
                     var existingBook = _bookService.GetDetailsForBook(id);
                     if (existingBook == null)
                     {
@@ -221,6 +244,7 @@ namespace Web.Controllers
                             newPublisher.Books.Add(existingBook);
                         }
                     }
+                    existingBook.UserId=user.Id;
                     existingBook.ISBN = book.ISBN;
                     existingBook.Title = book.Title;
                     existingBook.Description = book.Description;

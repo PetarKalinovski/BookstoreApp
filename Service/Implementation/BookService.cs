@@ -35,6 +35,13 @@ namespace EShop.Service.Implementation
            return bookRepository.GetAll().ToList();
         }
 
+        public List<Book> GetBooksByName(string name)
+        {
+            var books = bookRepository.GetAll().ToList();
+
+            return books.Where(b => b.Title.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
         public Book GetDetailsForBook(Guid? id)
         {
             return bookRepository.Get(id);

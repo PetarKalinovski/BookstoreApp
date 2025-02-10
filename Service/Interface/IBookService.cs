@@ -14,5 +14,7 @@ namespace Project.Service.Interface
         void CreateNewBook(Book b);
         void UpdateExistingBook(Book b);
         void DeleteBook(Guid id);
+
+        List<Book> GetBooksByName(string name);
     }
 }

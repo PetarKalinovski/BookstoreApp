@@ -1,13 +1,13 @@
 ﻿@using Eshop.Domain.Domain
 @model Eshop.Domain.Domain.Book
-
+@using Domain.Identity_Models
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IntegratedSystemsUser> UserManager
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = Model.Title;
     var publisher = ViewData["Publisher"] as Publisher;
     var authors = ViewData["Authors"] as List<Author>;
 }
-
-<h1>Details</h1>
 
 @if (TempData["Success"] != null)
 {
@@ -16,7 +16,6 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
-
 @if (TempData["Error"] != null)
 {
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -25,95 +24,97 @@
     </div>
 }
 
-<div>
-    <h4>Book</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.ISBN)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.ISBN)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Date)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Date)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Price)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Price)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.PictureUrl)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.PictureUrl)
-        </dd>
-        <dt class="col-sm-2">
-            Publisher
-        </dt>
-        <dd class="col-sm-10">
-            @(Model.Publisher?.Name ?? "No Publisher")
-        </dd>
-        <dt class="col-sm-2">
-            Authors
-        </dt>
-        <dd class="col-sm-10">
-            @if (Model.Authors != null && Model.Authors.Any())
-            {
-                <ul class="list-unstyled">
-                    @foreach (var author in Model.Authors)
-                    {
-                        <li>@author.Name</li>
-                    }
-                </ul>
-            }
-            else
-            {
-                <span>No Authors</span>
-            }
-        </dd>
-    </dl>
-</div>
+<div class="book-details-container">
+    <div class="book-details-header">
+        <a asp-action="Index" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Books
+        </a>
+    </div>
 
-<div>
-    @if (User.Identity.IsAuthenticated)
-    {
-        <form asp-action="AddToCart" asp-route-id="@Model.Id" method="post">
-            @Html.AntiForgeryToken()
-            <div class="form-group">
-                <label for="quantity">Quantity:</label>
-                <input type="number" name="quantity" id="quantity" class="form-control"
-                       value="1" min="1" max="99" style="width: 100px" required />
-            </div>
-            <button type="submit" class="btn btn-primary mt-2">
-                <i class="bi bi-cart-plus"></i> Add to Cart
-            </button>
-        </form>
-    }
-    else
-    {
-        <div class="alert alert-info">
-            Please <a asp-area="Identity" asp-page="/Account/Login">log in</a> to add items to your cart.
+    <div class="book-details-content">
+        <div class="book-image-section">
+            <img src="@Model.PictureUrl" alt="@Model.Title" class="book-detail-image">
+            <div class="book-price-tag">$@(Model.Price?.ToString("F2") ?? "0.00")</div>
         </div>
-    }
 
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+        <div class="book-info-section">
+            <h1 class="book-title">@Model.Title</h1>
+
+            <div class="book-meta">
+                <div class="meta-item">
+                    <i class="fas fa-barcode"></i>
+                    <span>ISBN: @Model.ISBN</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Published: @(Model.Date?.ToString("MMMM dd, yyyy") ?? "N/A")</span>
+                </div>
+            </div>
+
+            <div class="book-authors">
+                <h3>Authors</h3>
+                @if (Model.Authors != null && Model.Authors.Any())
+                {
+                    <div class="author-list">
+                        @foreach (var author in Model.Authors)
+                        {
+                            <a asp-controller="Authors" asp-action="Details" asp-route-id="@author.Id" class="author-tag">
+                                <i class="fas fa-user"></i> @author.Name
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <span class="text-muted">No Authors Listed</span>
+                }
+            </div>
+
+            <div class="book-publisher">
+                <h3>Publisher</h3>
+                <span class="publisher-name">@(Model.Publisher?.Name ?? "No Publisher")</span>
+            </div>
+
+            <div class="book-description">
+                <h3>Description</h3>
+                <p>@Model.Description</p>
+            </div>
+
+            <div class="book-actions">
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <form asp-action="AddToCart" asp-route-id="@Model.Id" method="post" class="add-to-cart-form">
+                        @Html.AntiForgeryToken()
+                        <div class="quantity-control">
+                            <button type="button" class="qty-btn" onclick="decrementQuantity()">-</button>
+                            <input type="number" name="quantity" id="quantity" value="1" min="1" max="99" required />
+                            <button type="button" class="qty-btn" onclick="incrementQuantity()">+</button>
+                        </div>
+                        <button type="submit" class="add-to-cart-btn">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <div class="login-prompt">
+                        <i class="fas fa-lock"></i>
+                        <p>Please <a asp-area="Identity" asp-page="/Account/Login">log in</a> to add items to your cart.</p>
+                    </div>
+                }
+
+                @if (User.Identity.IsAuthenticated && (Model.UserId == UserManager.GetUserId(User) || User.IsInRole("Admin"))){
+                    <div class="admin-actions">
+                        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit Book
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model?.Id" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Delete Book
+                        </a>
+                    </div>
+                }
+                
+            </div>
+        </div>
+    </div>
 </div>

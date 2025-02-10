@@ -1,4 +1,31 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.querySelector('.search-input');
+    let timeout = null;
 
-// Write your JavaScript code.
+    if (searchInput) {
+        searchInput.addEventListener('input', function (e) {
+            clearTimeout(timeout);
+
+            timeout = setTimeout(() => {
+                e.target.closest('form').submit();
+            }, 500); 
+        });
+    }
+});
+
+
+function incrementQuantity() {
+    const input = document.getElementById('quantity');
+    const currentValue = parseInt(input.value);
+    if (currentValue < 99) {
+        input.value = currentValue + 1;
+    }
+}
+
+function decrementQuantity() {
+    const input = document.getElementById('quantity');
+    const currentValue = parseInt(input.value);
+    if (currentValue > 1) {
+        input.value = currentValue - 1;
+    }
+}

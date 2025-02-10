@@ -8,17 +8,23 @@ using Microsoft.EntityFrameworkCore;
 using Eshop.Domain.Domain;
 using Repository;
 using Project.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Domain.Identity_Models;
 
 namespace Web.Controllers
 {
     public class AuthorsController : Controller
     {
         private readonly IAuthorService _authorService;
+        private readonly UserManager<IntegratedSystemsUser> _userManager;
 
-        public AuthorsController(IAuthorService authorService)
+        public AuthorsController(IAuthorService authorService, UserManager<IntegratedSystemsUser> userManager)
         {
             _authorService = authorService;
+            _userManager = userManager;
         }
+
 
 
 
@@ -56,10 +62,18 @@ namespace Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("Name,Biography,Id")] Author author)
+        [Authorize]
+        public async Task<IActionResult> Create([Bind("Name,Biography,Id")] Author author)
         {
+
             if (ModelState.IsValid)
             {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return Challenge();
+                }
+                author.UserId= user.Id;
                 _authorService.CreateNewAuthor(author);
                 return RedirectToAction(nameof(Index));
             }
@@ -98,6 +112,8 @@ namespace Web.Controllers
             {
                 try
                 {
+
+
                     _authorService.UpdateExistingAuthor(author);
                 }
                 catch (DbUpdateConcurrencyException)
