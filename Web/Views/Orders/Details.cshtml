@@ -1,0 +1,94 @@
+﻿@using Domain.Domain_Models
+@using Eshop.Domain.Domain
+@* Views/Orders/Details.cshtml *@
+@model Order
+
+<h2>Order Details</h2>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-md-6">
+                <h5 class="mb-0">Order #@Model.Id.ToString().Substring(0, 8)</h5>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <span class="badge bg-@GetStatusBadgeColor(Model.Status)">
+                    @Model.Status
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <h6>Order Date</h6>
+                <p>@Model.OrderDate.ToString("MM/dd/yyyy HH:mm")</p>
+            </div>
+            <div class="col-md-6">
+                <h6>Total</h6>
+                <p>@Model.TotalPrice.ToString("C")</p>
+            </div>
+        </div>
+
+        <h6>Items</h6>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Book Isbn</th>
+                        <th>Book Title</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.BookInOrders)
+                    {
+                        <tr>
+                            <td>
+                                @* <div class="d-flex align-items-center"> *@
+                                @*     @if (!string.IsNullOrEmpty(item.Book?.PictureUrl)) *@
+                                @*     { *@
+                                @*         <img src="@item.Book.PictureUrl" alt="@item.Book.Title" *@
+                                @*              class="me-2" style="width: 50px; height: 50px; object-fit: cover;" /> *@
+                                @*     } *@
+                                @*     <div> *@
+                                @*         <a asp-controller="Books" asp-action="Details" *@
+                                @*            asp-route-id="@item.BookId"> *@
+                                @*             @item.Book?.Title *@
+                                @*         </a> *@
+                                @*     </div> *@
+                                @* </div> *@
+                                @item.Book?.ISBN
+                            </td>
+                            <td>@item.Book?.Title</td>
+                            <td>@item.Book?.Price?.ToString("C")</td>
+                            <td>@item.Quantity</td>
+                            <td>@((item.Book?.Price * item.Quantity)?.ToString("C"))</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index" class="btn btn-secondary">Back to Orders</a>
+</div>
+
+@functions {
+    private string GetStatusBadgeColor(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.Pending => "warning",
+            OrderStatus.Processing => "info",
+            OrderStatus.Shipped => "primary",
+            OrderStatus.Delivered => "success",
+            OrderStatus.Cancelled => "danger",
+            _ => "secondary"
+        };
+    }
+}

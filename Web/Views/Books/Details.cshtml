@@ -1,0 +1,119 @@
+﻿@using Eshop.Domain.Domain
+@model Eshop.Domain.Domain.Book
+
+@{
+    ViewData["Title"] = "Details";
+    var publisher = ViewData["Publisher"] as Publisher;
+    var authors = ViewData["Authors"] as List<Author>;
+}
+
+<h1>Details</h1>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div>
+    <h4>Book</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ISBN)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ISBN)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Date)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Date)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Price)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Price)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PictureUrl)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PictureUrl)
+        </dd>
+        <dt class="col-sm-2">
+            Publisher
+        </dt>
+        <dd class="col-sm-10">
+            @(Model.Publisher?.Name ?? "No Publisher")
+        </dd>
+        <dt class="col-sm-2">
+            Authors
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.Authors != null && Model.Authors.Any())
+            {
+                <ul class="list-unstyled">
+                    @foreach (var author in Model.Authors)
+                    {
+                        <li>@author.Name</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <span>No Authors</span>
+            }
+        </dd>
+    </dl>
+</div>
+
+<div>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <form asp-action="AddToCart" asp-route-id="@Model.Id" method="post">
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                <label for="quantity">Quantity:</label>
+                <input type="number" name="quantity" id="quantity" class="form-control"
+                       value="1" min="1" max="99" style="width: 100px" required />
+            </div>
+            <button type="submit" class="btn btn-primary mt-2">
+                <i class="bi bi-cart-plus"></i> Add to Cart
+            </button>
+        </form>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            Please <a asp-area="Identity" asp-page="/Account/Login">log in</a> to add items to your cart.
+        </div>
+    }
+
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
