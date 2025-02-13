@@ -68,6 +68,9 @@
                     <select asp-for="PublisherId" asp-items="ViewBag.Publishers" class="form-control">
                         <option value="">-- Select Publisher --</option>
                     </select>
+                    <a asp-controller="Publishers" asp-action="Create" class="btn btn-outline-primary add-new-btn">
+                        <i class="fas fa-plus"></i> New Publisher
+                    </a>
                 </div>
             </div>
 

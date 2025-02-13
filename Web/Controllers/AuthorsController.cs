@@ -75,7 +75,7 @@ namespace Web.Controllers
                 }
                 author.UserId= user.Id;
                 _authorService.CreateNewAuthor(author);
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("index", "Books");
             }
             return View(author);
         }
@@ -127,7 +127,7 @@ namespace Web.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("index","Books");
             }
             return View(author);
         }
@@ -156,7 +156,7 @@ namespace Web.Controllers
         {
             _authorService.DeleteAuthor(id);
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("index", "Books");
         }
 
         private bool AuthorExists(Guid id)

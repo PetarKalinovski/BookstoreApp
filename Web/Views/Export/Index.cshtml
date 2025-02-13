@@ -1,0 +1,121 @@
+﻿@{
+    ViewData["Title"] = "Export Data";
+}
+
+<div class="export-container">
+    <div class="export-header">
+        <h1>Export Data</h1>
+        <p class="text-muted">Export your database records to CSV files</p>
+    </div>
+
+    <div class="export-grid">
+        <div class="export-card">
+            <div class="card-content">
+                <i class="fas fa-book fa-2x"></i>
+                <h3>Books</h3>
+                <p>Export all books with their details, authors, and publisher information.</p>
+                <form asp-action="ExportBooks" method="post">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-download"></i> Export Books
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="export-card">
+            <div class="card-content">
+                <i class="fas fa-users fa-2x"></i>
+                <h3>Authors</h3>
+                <p>Export all authors with their biographies and published books.</p>
+                <form asp-action="ExportAuthors" method="post">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-download"></i> Export Authors
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="export-card">
+            <div class="card-content">
+                <i class="fas fa-shopping-cart fa-2x"></i>
+                <h3>Orders</h3>
+                <p>Export all orders with their details and items.</p>
+                <form asp-action="ExportOrders" method="post">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-download"></i> Export Orders
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="export-card">
+            <div class="card-content">
+                <i class="fas fa-building fa-2x"></i>
+                <h3>Publishers</h3>
+                <p>Export all publishers and their published books.</p>
+                <form asp-action="ExportPublishers" method="post">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-download"></i> Export Publishers
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.export-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.export-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.export-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.export-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.export-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-content {
+    padding: 2rem;
+    text-align: center;
+}
+
+.card-content i {
+    color: #2c5282;
+    margin-bottom: 1rem;
+}
+
+.card-content h3 {
+    margin-bottom: 1rem;
+    color: #2d3748;
+}
+
+.card-content p {
+    color: #718096;
+    margin-bottom: 1.5rem;
+    min-height: 3em;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+</style>

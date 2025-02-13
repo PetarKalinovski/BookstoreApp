@@ -90,7 +90,7 @@ namespace Web.Controllers
                 TempData["Error"] = "There was an error adding the item to your cart.";
             }
 
-            return RedirectToAction(nameof(Details), book.Id);
+            return RedirectToAction(nameof(Details), new { id = book.Id });
         }
         // GET: Books/Create
         public IActionResult Create()
