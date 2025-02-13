@@ -57,7 +57,7 @@ namespace Web.Controllers
             if (ModelState.IsValid)
             {
                 _publisherService.CreateNewPublisher(publisher);
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("index", "Books");
             }
             return View(publisher);
         }
@@ -105,7 +105,7 @@ namespace Web.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("index", "Books");
             }
             return View(publisher);
         }
@@ -133,7 +133,7 @@ namespace Web.Controllers
         public IActionResult DeleteConfirmed(Guid id)
         {
             _publisherService.DeletePublisher(id);
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("index", "Books");
         }
 
         private bool PublisherExists(Guid id)
